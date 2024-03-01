@@ -1,8 +1,9 @@
 import React from 'react'
+import styles from './Loader.module.css'
 
 const Loader = () => {
   return (
-    <div>Loader</div>
+    <h1 className={styles.loader}>Загрузка товаров...</h1>
   )
 }
 

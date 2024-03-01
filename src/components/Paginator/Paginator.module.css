@@ -1,0 +1,43 @@
+.paginator{
+  display: flex;
+  justify-content: space-between;
+  width: 500px;
+  padding: 10px 0;
+  margin:auto;
+}
+
+.pages{
+  display: flex;
+  justify-content: space-around;
+  width: 300px;
+}
+.arrow{
+  border: none;
+  cursor: pointer;
+  background-color: white;
+}
+.page{
+  width: 30px;
+  background-color: white;
+  border: none;
+  &:hover{
+    cursor: pointer;
+    /* background-color: rgb(114, 114, 114); */
+    color: rgb(49, 60, 206);
+  }
+  &:active{
+    color: red;
+  }
+}
+
+.selected{
+  color: #ccc;
+  &:hover{
+    cursor: default;
+    /* background-color: rgb(114, 114, 114); */
+    color: #ccc;
+  }
+  &:active{
+    color: #ccc;
+  }
+}
