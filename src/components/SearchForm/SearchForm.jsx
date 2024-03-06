@@ -19,6 +19,10 @@ const SearchForm = ({ handleClickSearch }) => {
   }
 
   const handleClick = () => {
+    if(input.length == 0){
+      handleClickSearch(null)
+      return
+    }
     if (select === 'price') {
       handleClickSearch({ [select]: Number(input) })
     } else {

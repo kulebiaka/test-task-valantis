@@ -77,14 +77,10 @@ function App() {
   }
 
   const handleClickSearch = async (filter) => {
-    // setMapIdProduct({})
     setPage(1)
     setError('')
-    for (const key in filter) {
-      if (filter[key].length === 0) {
-        getInitialData()
-        return
-      }
+    if(filter == null){
+      return
     }
     setIsPending(true)
     setIsPendingIds(true)
