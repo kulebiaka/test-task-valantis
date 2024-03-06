@@ -1,7 +1,7 @@
 import md5 from "md5";
 
 const PASSWORD = 'Valantis'
-const URL_API = 'http://api.valantis.store:40000/'
+const URL_API = 'https://api.valantis.store:41000/'
 const GET_IDS = 'get_ids'
 const FILTER = 'filter'
 const GET_ITEMS = 'get_items'
