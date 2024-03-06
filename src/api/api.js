@@ -1,7 +1,13 @@
 import md5 from "md5";
-import { PASSWORD } from "../utils/constants";
 
-export const getXAuth = () => {
+const PASSWORD = 'Valantis'
+const URL_API = 'http://api.valantis.store:40000/'
+const GET_IDS = 'get_ids'
+const FILTER = 'filter'
+const GET_ITEMS = 'get_items'
+
+
+const getXAuth = () => {
 
   const fixDigit = (num) => num < 10 ? '0' + num : num
 
@@ -14,85 +20,54 @@ export const getXAuth = () => {
 }
 
 
-const deleteDulicates = (arr) => {
+export const deleteDuplicatesInArray = (arr) => {
   const set = new Set(arr)
   return Array.from(set)
 }
 
-export const getAllIdsFrom = async (offset = 0) => {
-  const response = await fetch('http://api.valantis.store:40000/', {
-    method: 'POST',
-    headers:{
-      "Content-Type": "application/json",
-      'X-Auth': getXAuth()
-    },
-    body: JSON.stringify({
-      "action": "get_ids",
-      "params": {offset}
+const createResponse = async (action, params, signal) => {
+  let response
+  try {
+    response = await fetch(URL_API, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        'X-Auth': getXAuth()
+      },
+      body: JSON.stringify({
+        "action": action,
+        "params": params
+      }),
+      signal
     })
-  })
-  // if(response.status >= 500){
-  //   return await getIds(offset)
-  // }
-  // console.log(response.json())
-  return response.json().then(res => deleteDulicates(res.result))
+    if(!response.ok){ 
+      throw new Error(`Server returned ${response.status} ${response.statusText}`)
+    }
+  } catch (error) {
+    console.log(error instanceof Error ? error : 'Unknown error')
+    if(response?.status === 500){
+      return createResponse(action, params, signal)
+    }
+    return Promise.resolve(error)
+  }
+  return response
 }
 
 
-export const getIds = async (limit, offset) => {
-  
-  const response = await fetch('http://api.valantis.store:40000/', {
-    method: 'POST',
-    headers:{
-      "Content-Type": "application/json",
-      'X-Auth': getXAuth()
-    },
-    body: JSON.stringify({
-      "action": "get_ids",
-      "params": {offset, limit}
-    })
-  })
-  // if(response.status >= 500){
-  //   return getIds(limit, offset)
-  // }
-
-  return response.json().then(res => deleteDulicates(res.result))
+export const getIds = async (offset, limit) => {
+  const response = await createResponse(GET_IDS, { limit, offset })
+  return response.json().then(res => deleteDuplicatesInArray(res.result))
 }
 
-export const getFilteredIds = async ( filter ) => {
-  const response = await fetch('http://api.valantis.store:40000/', {
-    method: 'POST',
-    headers:{
-      "Content-Type": "application/json",
-      'X-Auth': getXAuth()
-    },
-    body: JSON.stringify({
-      "action": "filter",
-      "params": {...filter}
-    })
-  })
-  // if(response.status >= 500){
-  //   return await getIds(limit, offset)
-  // }
-  // console.log(response.json())
-  return response.json().then(res => res.result)
+export const getFilteredIds = async (filter) => {
+  const response = await createResponse(FILTER, { ...filter })
+  return response.json().then(res => deleteDuplicatesInArray(res.result))
 }
 
-export const getItemsByIds = async (ids) => {
-  const response = await fetch('http://api.valantis.store:40000/', {
-    method: 'POST',
-    headers:{
-      "Content-Type": "application/json",
-      'X-Auth': getXAuth()
-    },
-    body: JSON.stringify({
-      "action": "get_items",
-      "params":{'ids': ids}
-    })
-  })
-  // if(response.status >= 500){
-  //   return await getItemsByIds(ids)
-  // }
-  // response.json().then(console.log)
+export const getItemsByIds = async (ids, signal) => {
+  const response = await createResponse(GET_ITEMS, { ids }, signal)
+  if(response instanceof Error){
+    return
+  }
   return response.json().then(res => res.result)
 }

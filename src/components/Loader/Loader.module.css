@@ -1,4 +1,6 @@
 .loader{
   width: 100%;
   line-height: 300px;
+  font-size: 32px;
+  font-weight: 500;
 }

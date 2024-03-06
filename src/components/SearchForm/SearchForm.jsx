@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react'
-
-let initial = {
-  brand: undefined,
-  price: undefined,
-  product: undefined,
-  id: undefined
-}
+import styles from './SearchForm.module.css'
 
 const SearchForm = ({ handleClickSearch }) => {
 
@@ -25,23 +19,27 @@ const SearchForm = ({ handleClickSearch }) => {
   }
 
   const handleClick = () => {
-    if(select === 'price'){
+    if (select === 'price') {
       handleClickSearch({ [select]: Number(input) })
-      return
+    } else {
+      handleClickSearch({ [select]: input })
     }
-    handleClickSearch({ [select]: input })
   }
 
   return (
-    <div>
-      <label htmlFor="filterSelector">Искать по</label>
-      <select name="" id="filterSelector" onChange={handleChangeSelect} value={select}>
-        <option value="brand">Бренду</option>
-        <option value="price">Цене</option>
-        <option value="product">Названию</option>
-      </select>
-      <input type={select === 'price' ? "number" : "text"} placeholder='Введите' onChange={handleChangeInput} value={input} />
-      <button onClick={handleClick}>Найти</button>
+    <div className={styles.form}>
+      <div>
+        <label htmlFor="filter-selector">Искать по</label>
+        <select className={styles.select} id="filter-selector" onChange={handleChangeSelect} value={select}>
+          <option value="brand">Бренду</option>
+          <option value="price">Цене</option>
+          <option value="product">Названию</option>
+        </select>
+      </div>
+      <div className={styles.search}>
+        <input className={styles.input} type={select === 'price' ? "number" : "text"} placeholder='Введите' onChange={handleChangeInput} value={input} />
+        <button className={styles.button} onClick={handleClick}>Найти</button>
+      </div>
     </div>
   )
 }

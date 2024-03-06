@@ -1,6 +1,54 @@
-.container{
-  /* width: 260px; */
-  height: 150px;
-  padding: 10px;
+.container {
+  height: 200px;
+  padding: 12px;
   border: 1px solid #646464;
+  border-radius: 20px;
+}
+
+.name {
+  height: 50px;
+  font-size: 20px;
+}
+
+.brand {
+  margin: 40px 0px 0px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.id {
+  margin: 20px 0px;
+  width: 80%;
+  text-align: left;
+}
+
+.price {
+  text-align: right;
+
+  font-weight: 600;
+  font-size: 20px;
+
+}
+
+
+@media only screen and (max-width: 600px) {
+  .container {
+    height: 150px;
+  }
+
+  .brand {
+    margin: 0;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .name {
+    font-size: 18px
+  }
+  .brand{
+    font-size: 16px;
+  }
+  .id{
+    font-size: 14px;
+  }
 }

@@ -1,6 +1,17 @@
+.title{
+  padding: 20px 0;
+  font-size: 26px;
+}
+
 .app {
   margin:auto;
   width: 1200px;
   text-align: center;
 }
 
+
+@media only screen and (max-width: 1210px){
+  .app{
+    width: 90%;
+  }
+}

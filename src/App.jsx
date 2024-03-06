@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './App.module.css';
 import SearchForm from './components/SearchForm/SearchForm';
 import ProductList from './components/ProductList/ProductList';
 import Paginator from './components/Paginator/Paginator';
-import { getAllIdsFrom, getFields, getFilteredIds, getIds, getItemsByIds } from './api/api';
+import { getFilteredIds, getIds, getItemsByIds } from './api/api';
 import { PAGE_SIZE } from './utils/constants';
 import Loader from './components/Loader/Loader';
 
@@ -11,41 +11,64 @@ import Loader from './components/Loader/Loader';
 function App() {
 
   const [isPending, setIsPending] = useState(true)
-  // const [error, setError] = useState()
   const [isPendingIds, setIsPendingIds] = useState(true)
+  const [error, setError] = useState('')
   const [page, setPage] = useState(1)
-  const [idList, setProductsIdsList] = useState([]) // массив уникальных id
-  const [mapIdProduct, setMapIdProduct] = useState({}) // ключ - id товара, значение - сам товар
+  const [idList, setIdList] = useState([])
+  const [mapIdProduct, setMapIdProduct] = useState({}) 
 
-  let slicedIdList = idList?.slice((page - 1) * 50, page * 50)
+  let slicedIdList = idList.slice((page - 1) * 50, page * 50)
   let productsFromPage = slicedIdList.map((id) => mapIdProduct[id])
 
-  
-  
   useEffect(() => {
     getInitialData()
-    return () => setProductsIdsList([])
   }, [])
-  
+
+  useEffect(() => {
+    let pageAbortController = new AbortController()
+    let signal = pageAbortController.signal
+
+    const getProductsByPage = async () => {
+      let products
+      const idsToRequest = []
+      slicedIdList.forEach((id) => {
+        if (mapIdProduct[id] == undefined) {
+          idsToRequest.push(id)
+        }
+      })
+      if (idsToRequest.length > 0) {
+        setIsPending(true)
+        products = await getItemsByIds(idsToRequest, signal)
+        setMapWithCheckDuplicates(products)
+        setIsPending(ignore)
+      }
+      return products
+    }
+
+    let ignore = false;
+    getProductsByPage()
+    return () => {
+      ignore = true
+      pageAbortController.abort()
+    }
+  }, [page])
+
   const getInitialData = async () => {
     setIsPending(true)
-    const ids = await getIds(110, 0)
-    setProductsIdsList(ids)
+    setIsPendingIds(true)
+    const ids = await getIds(0, 60)
+    setIdList(ids)
     const products = await getItemsByIds(ids.slice(0, 50))
     setMapWithCheckDuplicates(products)
-    setIsPendingIds(true)
-    getAllIdsFrom(110)
-      .then(ids => {
-        setProductsIdsList(prev => [...prev, ...ids])
-        setIsPendingIds(false)
-      })
-
     setIsPending(false)
+    const allIds = await getIds()
+    setIdList(allIds)
+    setIsPendingIds(false)
   }
 
   const setMapWithCheckDuplicates = (products) => {
     const changing = {}
-    products.forEach(product => {
+    products?.forEach(product => {
       if (mapIdProduct[product.id] == undefined && changing[product.id] == undefined) {
         changing[product.id] = product
       }
@@ -54,51 +77,38 @@ function App() {
   }
 
   const handleClickSearch = async (filter) => {
-
-    for (const key in filter){
-      if(filter[key].length === 0){
+    // setMapIdProduct({})
+    setPage(1)
+    setError('')
+    for (const key in filter) {
+      if (filter[key].length === 0) {
         getInitialData()
         return
       }
     }
-
     setIsPending(true)
+    setIsPendingIds(true)
     const ids = await getFilteredIds(filter)
-    setProductsIdsList(ids)
-    // if(ids.length === 0)
-    const products = await getItemsByIds(ids.slice((page - 1) * 50, page * 50))
-    setMapWithCheckDuplicates(products)
-    handleChangePage(1)
-    setIsPending(false)
-
-  }
-
-  const handleChangePage = async (newPage) => {
-    let response;
-    setPage(newPage)
-    const idsToRequest = []
-    idList?.slice((newPage - 1) * 50, newPage * 50).forEach((id) => {
-      if (mapIdProduct[id] == undefined) {
-        idsToRequest.push(id)
-      }
-    })
-    if (idsToRequest?.length > 0) {
-      console.log(idsToRequest)
-      setIsPending(true)
-      let products = await getItemsByIds(idsToRequest)
+    setIdList(ids)
+    if (ids.length === 0) {
+      setError('К сожалению, по вашему запросу ничего не найдено')
+    } 
+    else {
+      const products = await getItemsByIds(ids.slice(0 * 50, 1 * 50))
       setMapWithCheckDuplicates(products)
-      setIsPending(false)
     }
+    setIsPending(false)
+    setIsPendingIds(false)
+    return ids
   }
 
   return (
     <div className={styles.app}>
-      <h1>Интернет Магазин</h1>
-      <SearchForm handleClickSearch={handleClickSearch} />
-      <Paginator isPendingPages={isPendingIds} countAllItems={idList?.length} selectedPage={page} setSelectedPage={handleChangePage} pageSize={PAGE_SIZE} />
-      <ProductList products={productsFromPage} />
-      {isPending && <Loader />}
-      {/* {!isPendingIds && !isPending && !idList.length && 'К сожалению, по вашему запросу ничего не нашли :('} */}
+      <h1 className={styles.title}>Интернет Магазин</h1>
+      <SearchForm handleClickSearch={handleClickSearch} resetFilter={getInitialData} />
+      {isPendingIds ? <span style={{lineHeight: '37px'}}>Загрузка...</span> : <Paginator countAllItems={idList?.length} selectedPage={page} setSelectedPage={setPage} pageSize={PAGE_SIZE} />}
+      {isPending ? <Loader /> : <ProductList products={productsFromPage} />}
+      {error}
     </div>
   );
 }
