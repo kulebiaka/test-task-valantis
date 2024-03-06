@@ -1,70 +1,24 @@
-# Getting Started with Create React App
+# Тестовое задание от Valantis
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Задание выполнено на React.js. 
 
-## Available Scripts
+## Сложности, с которыми столкнулся
 
-In the project directory, you can run:
+В связи с тем, что в полученных id с сервера могут встречаться дубликаты и при обращение к апи нельзя получить 
+количество элементов, я решил получать все id с сервера при первой загрузке. Для более быстрой загрузки товаров 
+на первой странице я сначала запрашиваю первые 60 id(с запасом, так как при запросе 50, могут прийти дубликаты 
+с сервера и уникальных id будет меньше, чем требуется на странице) иотправляю запрос на первые 50 товаров, 
+параллельно получая все остальные id с сервера. Таким образом, быстрее приходят товары с первой страницы и 
+параллельно подгружается пагинация, тем самым улучшая пользовательский опыт.
 
-### `npm start`
+Также есть вариант подгрузки id порционно, но таким образом увеличивается время загрузки каждой последующей страницы, 
+так как при запросе id количество пришедших id не равно количеству уникальных id, а также нельзя отобразить пагинатор
+без знания количества страниц, поэтому я решил, что мой способ решения данной задачи является самым оптимальным.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Что я бы предложил для улучшения работы c API(за исключением удаления дубликатов на сервере)?
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Получение товаров сразу, минуя получение идентификаторов и отправку их на сервер, так как по сути это не сильно требуется,
+а также добавить возможность получить количество всех товаров. Таким образом, не будет требоваться получать все идентификаторы, 
+но также можно будет свободны перемещаться со одной страницы на другую. Это уменьшит количество информации передаваемой 
+между клиентом и сервером, а также улучшит поддерживаемость кода. 
