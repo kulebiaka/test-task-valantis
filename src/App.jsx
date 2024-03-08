@@ -80,6 +80,7 @@ function App() {
     setPage(1)
     setError('')
     if(filter == null){
+      getInitialData()
       return
     }
     setIsPending(true)
